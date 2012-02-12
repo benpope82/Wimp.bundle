@@ -17,7 +17,7 @@
 	<string>1.0</string>
 		<key>PlexMediaContainer</key>
 	<array>
-		<string>FLV</string>
+		<string>MP4</string>
 	</array>
 	<key>PlexVideoCodec</key>
 	<array>
