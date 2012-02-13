@@ -35,7 +35,7 @@ def NewestVideos(title):
 	recent = data.xpath('//span[@class="video_date"]')[0].text
 
 	for video in data.xpath('//span[@class="video_date" and text()="%s"]' % recent):
-		title = video.xpath('./following-sibling::a')[0].text
+		title = video.xpath('./following-sibling::a')[0].text.strip()
 		url = video.xpath('./following-sibling::a')[0].get('href')
 		oc.add(VideoClipObject(url=WIMP_URL+url, title=title))
 
@@ -49,7 +49,7 @@ def OlderVideos(title):
 	recent = data.xpath('//span[@class="video_date"]')[0].text
 
 	for video in data.xpath('//span[@class="video_date" and text()!="%s"]' % recent):
-		title = video.xpath('./following-sibling::a')[0].text
+		title = video.xpath('./following-sibling::a')[0].text.strip()
 		url = video.xpath('./following-sibling::a')[0].get('href')
 		oc.add(VideoClipObject(url=WIMP_URL+url, title=title))
 
