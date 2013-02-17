@@ -1,24 +1,14 @@
-NAME = 'Wimp'
-ART  = 'art-default.jpg'
-ICON = 'icon-default.png'
 WIMP_URL = 'http://www.wimp.com'
 
 ####################################################################################################
 def Start():
 
-	Plugin.AddPrefixHandler("/video/wimp", VideoMainMenu, NAME, ICON, ART)
-	Plugin.AddViewGroup("InfoList", viewMode="InfoList", mediaType="items")
-
-	ObjectContainer.title1 = NAME
-	ObjectContainer.view_group = "InfoList"
-	ObjectContainer.art = R(ART)
-	DirectoryObject.thumb = R(ICON)
-	VideoClipObject.thumb = R(ICON)
-
+	ObjectContainer.title1 = 'Wimp'
 	HTTP.CacheTime = CACHE_1HOUR
 
 ####################################################################################################
-def VideoMainMenu():
+@handler('/video/wimp', 'Wimp')
+def MainMenu():
 
 	oc = ObjectContainer()
 	oc.add(DirectoryObject(key=Callback(NewestVideos, title="Newest Videos"), title="Newest Videos", summary="Most recent videos uploaded on Wimp.com"))
@@ -28,6 +18,7 @@ def VideoMainMenu():
 	return oc
 
 ####################################################################################################
+@route('/video/wimp/videos/newest')
 def NewestVideos(title):
 
 	oc = ObjectContainer(title2=title)
@@ -42,6 +33,7 @@ def NewestVideos(title):
 	return oc  
 
 ####################################################################################################
+@route('/video/wimp/videos/older')
 def OlderVideos(title):
 
 	oc = ObjectContainer(title2=title)
