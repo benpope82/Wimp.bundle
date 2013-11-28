@@ -42,7 +42,7 @@ def DateBrowser(title, url, year=''):
     data = HTML.ElementFromURL(url)
     
     date_list = []
-    new_date_list = data.xpath('//span[@class="video_date"]//text()')
+    new_date_list = data.xpath('//span[@class="video_date"]/text()')
     # wanted to use set to take out repeated items, but then they are out of order. This maintains order
     for entry in new_date_list:
         if entry not in date_list:
@@ -90,9 +90,9 @@ def Videos(title, url, date_list, date):
     vid_date = Datetime.ParseDate(date)
 
     for video in data.xpath('//span[@class="video_date" and text()="%s"]' % title):
-        vid_title = video.xpath('./following-sibling::a//text()')[0].strip()
+        vid_title = video.xpath('./following-sibling::a/text()')[0].strip()
         vid_title = '%s - %s' %(title, vid_title)
-        vid_url = video.xpath('./following-sibling::a//@href')[0]
+        vid_url = video.xpath('./following-sibling::a/@href')[0]
 
         oc.add(VideoClipObject(url=WIMP_URL+vid_url, title=vid_title, originally_available_at=vid_date))
 
