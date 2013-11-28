@@ -14,26 +14,26 @@ def Start():
 @handler(PREFIX, "Wimp")
 def MainMenu():
 
-    oc = ObjectContainer()
+    oc = ObjectContainer(no_cache=True)
     oc.add(DirectoryObject(key=Callback(DateBrowser, title="Newest Videos", url=WIMP_URL), title="Newest Videos", summary="Most recent videos uploaded on Wimp.com"))
     oc.add(DirectoryObject(key=Callback(Archive, title="Archives"), title="Archives", summary="Videos previously uploaded on Wimp.com"))
-    oc.add(DirectoryObject(key=Callback(Random, title="Random Video"), title="Random Video", summary="Play a random Wimp.com video"))
+    oc.add(VideoClipObject(url=RandomEpisode(), title="Random Video", summary="Play a random Wimp.com video"))
     oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.wimp", title=L("Search Wimp Videos"), prompt=L("Search for Videos")))
 
     return oc
 
 ####################################################################################################
 @route(PREFIX + '/random')
-def Random(title):
+def RandomEpisode():
 
-    oc = ObjectContainer(title2=title, no_cache=True)
-    data = HTML.ElementFromURL(RANDOM_URL, cacheTime=1)
+    try:
+        page = HTTP.Request(RANDOM_URL, follow_redirects=False).content
+    except Ex.RedirectError, e:
+        if 'Location' in e.headers:
+            return e.headers['Location']
 
-    random_url=data.xpath('//meta[@property="og:url"]//@content')[0]
-    random_title=data.xpath('//meta[@property="og:title"]//@content')[0]
-    oc.add(VideoClipObject(url=random_url, title=random_title, summary="Play a random Wimp.com video"))
+        raise Ex.MediaNotAvailable
 
-    return oc  
 ####################################################################################################
 @route(PREFIX + '/datebrowser')
 def DateBrowser(title, url, year=''):
@@ -51,7 +51,7 @@ def DateBrowser(title, url, year=''):
     for names in date_list:
         date_title = names
         # Here we check the main page to make sure it does not have two different years in it
-        if url==WIMP_URL:
+        if url == WIMP_URL:
             year = Datetime.Now().year
             curr_month = Datetime.Now().month
             item_month = Datetime.ParseDate(names.split()[0]).month
@@ -59,16 +59,8 @@ def DateBrowser(title, url, year=''):
                 year = year-1
             year = str(year)
         date = '%s, %s' %(names, year)      
-        oc.add(DirectoryObject(key=Callback(Videos, title=date_title, url=url, date_list=date_list, date=date), title=date_title))
 
-    for element in data.xpath('//a[contains(@href,"/archives/")]'):
-        title = element.xpath('.//text()')[0].strip()
-        url = element.xpath('.//@href')[0]
-        if url==WIMP_ARCHIVE:
-            title="Archives"
-            oc.add(DirectoryObject(key=Callback(Archive, title="Archives", url=WIMP_URL+url), title="Archives"))
-        else:
-            oc.add(DirectoryObject(key=Callback(DateBrowser, title=title, url=WIMP_URL+url), title=title))
+        oc.add(DirectoryObject(key=Callback(Videos, title=date_title, url=url, date_list=date_list, date=date), title=date_title))
 
     return oc  
 
@@ -80,25 +72,28 @@ def Archive(title):
     data = HTML.ElementFromURL(WIMP_ARCHIVE)
 
     for video in data.xpath('//div/p/a[@class="b"]'):
-        title = video.xpath('.//text()')[0]
+        title = video.xpath('./text()')[0]
         year = title.split()[1]
-        url = WIMP_URL + video.xpath('.//@href')[0]
+        url = WIMP_URL + video.xpath('./@href')[0]
+
         oc.add(DirectoryObject(key=Callback(DateBrowser, title=title, url=url, year=year), title=title))
 
     return oc  
 
 ####################################################################################################
 @route(PREFIX + '/videos', date_list=list)
-def Videos(title, url, date_list, date, title1="Videos"):
+def Videos(title, url, date_list, date):
 
-    oc = ObjectContainer(title1=title1, title2=title)
+    oc = ObjectContainer(title2=title)
     data = HTML.ElementFromURL(url)
   
     vid_date = Datetime.ParseDate(date)
+
     for video in data.xpath('//span[@class="video_date" and text()="%s"]' % title):
         vid_title = video.xpath('./following-sibling::a//text()')[0].strip()
         vid_title = '%s - %s' %(title, vid_title)
         vid_url = video.xpath('./following-sibling::a//@href')[0]
+
         oc.add(VideoClipObject(url=WIMP_URL+vid_url, title=vid_title, originally_available_at=vid_date))
-        
+
     return oc  
