@@ -1,7 +1,8 @@
 PREFIX = '/video/wimp'
 WIMP_URL = 'http://www.wimp.com'
+RANDOM_URL = 'http://www.wimp.com/random/'
 WIMP_ARCHIVE = 'http://www.wimp.com/archives/'
-
+# Wimp has an rss feed at http://www.wimp.com/rss/ but it only shows the latest videos and no archives
 
 ####################################################################################################
 def Start():
@@ -16,11 +17,23 @@ def MainMenu():
     oc = ObjectContainer()
     oc.add(DirectoryObject(key=Callback(DateBrowser, title="Newest Videos", url=WIMP_URL), title="Newest Videos", summary="Most recent videos uploaded on Wimp.com"))
     oc.add(DirectoryObject(key=Callback(Archive, title="Archives"), title="Archives", summary="Videos previously uploaded on Wimp.com"))
-    oc.add(VideoClipObject(url=(WIMP_URL+'/random/'), title="Random Video", summary="Play a random Wimp.com video"))
+    oc.add(DirectoryObject(key=Callback(Random, title="Random Video"), title="Random Video", summary="Play a random Wimp.com video"))
     oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.wimp", title=L("Search Wimp Videos"), prompt=L("Search for Videos")))
 
     return oc
 
+####################################################################################################
+@route(PREFIX + '/random')
+def Random(title):
+
+    oc = ObjectContainer(title2=title, no_cache=True)
+    data = HTML.ElementFromURL(RANDOM_URL, cacheTime=1)
+
+    random_url=data.xpath('//meta[@property="og:url"]//@content')[0]
+    random_title=data.xpath('//meta[@property="og:title"]//@content')[0]
+    oc.add(VideoClipObject(url=random_url, title=random_title, summary="Play a random Wimp.com video"))
+
+    return oc  
 ####################################################################################################
 @route(PREFIX + '/datebrowser')
 def DateBrowser(title, url, year=''):
@@ -46,7 +59,6 @@ def DateBrowser(title, url, year=''):
                 year = year-1
             year = str(year)
         date = '%s, %s' %(names, year)      
-        #Log('the value of date is %s' %date)
         oc.add(DirectoryObject(key=Callback(Videos, title=date_title, url=url, date_list=date_list, date=date), title=date_title))
 
     for element in data.xpath('//a[contains(@href,"/archives/")]'):
