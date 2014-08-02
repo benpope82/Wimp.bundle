@@ -2,13 +2,13 @@ PREFIX = '/video/wimp'
 WIMP_URL = 'http://www.wimp.com'
 RANDOM_URL = 'http://www.wimp.com/random/'
 WIMP_ARCHIVE = 'http://www.wimp.com/archives/'
-# Wimp has an rss feed at http://www.wimp.com/rss/ but it only shows the latest videos and no archives
 
 ####################################################################################################
 def Start():
 
     ObjectContainer.title1 = 'Wimp'
     HTTP.CacheTime = CACHE_1HOUR
+    HTTP.Headers['Cookie'] = 'old=1'
 
 ####################################################################################################
 @handler(PREFIX, "Wimp")

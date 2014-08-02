@@ -4,12 +4,13 @@ WIMP_URL = 'http://www.wimp.com'
 
 ####################################################################################################
 def Search(query):
+
     oc = ObjectContainer(title1='WIMP', title2='Search Results')
     # the auto-complete in Roku adds the date, but Wimp will not search with the date included so we remove it
     if ' - ' in query:
         query = query.split(' - ')[1]
-    url = SEARCH_URL + String.Quote(query, usePlus = True)
-    data = HTML.ElementFromURL(url)
+    url = SEARCH_URL + String.Quote(query, usePlus=True)
+    data = HTML.ElementFromURL(url, headers={'Cookie': 'old=1'})
 
     for video in data.xpath('//span[@class="video_date"]'):
         Log('the value of video is %s' %video)
