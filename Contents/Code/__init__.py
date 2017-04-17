@@ -1,4 +1,6 @@
 PREFIX = '/video/wimp'
+ART = 'art-default.jpg'
+ICON = 'icon-default.jpg'
 WIMP_URL = 'http://www.wimp.com'
 WIMP_ARCHIVE = 'http://www.wimp.com/archives/'
 
@@ -10,7 +12,7 @@ def Start():
     HTTP.Headers['Cookie'] = 'old=1'
 
 ####################################################################################################
-@handler(PREFIX, "Wimp")
+@handler(PREFIX, "Wimp", art=ART, thumb=ICON)
 def MainMenu():
 
     oc = ObjectContainer(no_cache=True)
