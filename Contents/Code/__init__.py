@@ -18,7 +18,6 @@ def MainMenu():
     oc = ObjectContainer(no_cache=True)
     oc.add(DirectoryObject(key=Callback(DateBrowser, title="Newest Videos", url=WIMP_URL), title="Newest Videos", summary="Most recent videos uploaded on Wimp.com"))
     oc.add(DirectoryObject(key=Callback(Archive, title="Archives"), title="Archives", summary="Videos previously uploaded on Wimp.com"))
-    oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.wimp", title=L("Search Wimp Videos"), prompt=L("Search for Videos")))
 
     return oc
 
